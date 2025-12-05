@@ -2,7 +2,7 @@ pipeline {
     agent none  
 
     environment {
-        REPO_URL = "https://github.com/Fredericsonn/sirius-back.git"
+        REPO_URL = "https://github.com/Fredericsonn/ecotracer.git"
         REMOTE_USER = "eco"
     }
 
