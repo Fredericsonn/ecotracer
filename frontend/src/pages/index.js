@@ -1,0 +1,19 @@
+export {default as HomeLayout} from "./HomeLayout";
+export {default as Register} from "./Register";
+export {default as Users} from "./Users";
+export {default as Error} from "./Error";
+export {default as MachineList} from "../components/MachineList";
+export {default as Landing} from "./Landing";
+export {default as Login} from "./Login";
+export {default as Profile} from "./Profile";
+export {default as About} from "./About";
+export {default as Tracer} from "./Tracer";
+export {default as Catalog} from "./Catalog";
+export {default as Collections} from "./Collections";
+export {default as Consumptions} from "./Consumptions";
+export {default as Collection} from "./Collection";
+export {default as Resources} from "./Resource";
+export {default as Consumption} from "./Consumption";
+export {default as QuizPage} from "./QuizPage";
+export {default as AdvancedOptimization} from "./AdvancedOptimization";
+
