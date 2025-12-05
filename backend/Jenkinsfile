@@ -75,7 +75,7 @@ pipeline {
                 } 
             }
             steps {
-                sh 'docker build -t ${REGISTRY_URL}/${IMAGE_NAME} .'
+                sh 'docker build -t ${REGISTRY_URL}/${IMAGE_NAME} backend/'
             }
         }
 
