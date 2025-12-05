@@ -52,7 +52,10 @@ pipeline {
                     "DATABASE_USER=${env.DATABASE_USER}",
                     "DATABASE_PASSWORD=${env.DATABASE_PASSWORD}"
                 ]) {
-                    sh 'mvn clean package'
+                    sh ''' 
+                        cd backend
+                        mvn clean package
+                    '''
                 }
             }
         }
@@ -60,7 +63,7 @@ pipeline {
         stage("Archive artifact") {
             agent { docker { image 'ecotracer/back-agent' } }
             steps {
-                archiveArtifacts artifacts: "target/*.jar,Dockerfile", allowEmptyArchive: false
+                archiveArtifacts artifacts: "backend/target/*.jar,backend/Dockerfile", allowEmptyArchive: false
             }
         }
 
