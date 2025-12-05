@@ -1,0 +1,81 @@
+pipeline {
+    agent none  
+
+    environment {
+        REPO_URL = "https://github.com/Fredericsonn/ecotracer.git"
+        REMOTE_USER = "eco"
+    }
+
+    stages {
+
+        stage('Load Secrets from Vault') {
+            steps {
+                script {
+                    withVault([
+                        vaultSecrets: [[
+                            path: "jenkins/mqtt/${ENV}",
+                            secretValues: [
+                                [envVar: 'MQTT_URL', vaultKey: 'MQTT_URL'],
+                                [envVar: 'REMOTE_DIR',  vaultKey: 'REMOTE_DIR'],
+                                [envVar: 'BRANCH',  vaultKey: 'BRANCH']
+                            ]
+                        ]]
+                    ]) {
+                        env.MQTT_URL   = MQTT_URL
+                        env.REMOTE_DIR = REMOTE_DIR
+                        env.BRANCH     = BRANCH
+                    }
+                }
+            }
+        }
+
+        stage('Cloning the repository') {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                git branch: "${BRANCH}", url: "${env.REPO_URL}"
+            }
+        }
+
+        stage("Archive artifacts") {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                archiveArtifacts artifacts: "mqtt/docker-compose.yml,mqtt/mosquitto.conf", allowEmptyArchive: false
+            }
+        }
+
+        stage("Deploy Mosquitto") {
+            agent { 
+                docker { 
+                    image 'ecotracer/dind'
+                    args '--user root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                } 
+            }
+            steps {
+                sshagent(['creds']) {
+                    sh """
+                        # Create directory if it doesn't exist
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${MQTT_URL} "mkdir -p ${REMOTE_DIR}"
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${MQTT_URL} "mkdir -p ${REMOTE_DIR}/data"
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${MQTT_URL} "mkdir -p ${REMOTE_DIR}/logs"
+
+                        # Copy docker-compose and config
+                        scp -o StrictHostKeyChecking=no mqtt/docker-compose.yml ${REMOTE_USER}@${MQTT_URL}:${REMOTE_DIR}/
+                        scp -o StrictHostKeyChecking=no mqtt/mosquitto.conf ${REMOTE_USER}@${MQTT_URL}:${REMOTE_DIR}/
+
+                        # Restart the mosquitto container
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${MQTT_URL} "
+                            cd ${REMOTE_DIR} && \
+                            docker compose down && \
+                            docker compose up -d --build
+                        "
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success { echo 'Mosquitto broker deployed successfully!' }
+        failure { echo 'Deployment failed. Check Jenkins logs.' }
+    }
+}

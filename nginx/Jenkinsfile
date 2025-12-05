@@ -1,0 +1,117 @@
+pipeline {
+    agent none  
+
+    environment {
+        REPO_URL = "https://github.com/Fredericsonn/ecotracer.git"
+        REMOTE_USER = "eco"
+    }
+
+    stages {
+
+        stage('Load Secrets from Vault') {
+            steps {
+                script {
+                    withVault([
+                        vaultSecrets: [[
+                            path: "jenkins/proxy/${ENV}",
+                            secretValues: [
+                                [envVar: 'FRONTEND_HOST', vaultKey: 'FRONTEND_HOST'],
+                                [envVar: 'FRONTEND_PORT', vaultKey: 'FRONTEND_PORT'],
+                                [envVar: 'BACKEND_HOST',  vaultKey: 'BACKEND_HOST'],
+                                [envVar: 'BACKEND_PORT',  vaultKey: 'BACKEND_PORT'],
+                                [envVar: 'REMOTE_DIR',  vaultKey: 'REMOTE_DIR'],
+                                [envVar: 'BRANCH',        vaultKey: 'BRANCH'],
+                                [envVar: 'CERTS_PATH',        vaultKey: 'CERTS_PATH'],
+                            ]
+                        ]]
+                    ]) {
+                        env.FRONTEND_HOST = FRONTEND_HOST
+                        env.FRONTEND_PORT = FRONTEND_PORT
+                        env.BACKEND_HOST  = BACKEND_HOST
+                        env.BACKEND_PORT  = BACKEND_PORT
+                        env.REMOTE_DIR    = REMOTE_DIR
+                        env.BRANCH        = BRANCH
+                        env.CERTS_PATH    = CERTS_PATH
+                    }
+                }
+            }
+        }
+
+        stage('Cloning the repository') {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                git branch: "${BRANCH}", url: "${env.REPO_URL}"
+            }
+        }
+        stage('Generate .env file') {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                sh """
+                    cat > .env <<EOF
+                        FRONTEND_HOST=${FRONTEND_HOST}
+                        FRONTEND_PORT=${FRONTEND_PORT}
+                        BACKEND_HOST=${BACKEND_HOST}
+                        BACKEND_PORT=${BACKEND_PORT}
+                        EOF
+                """
+            }
+        }
+
+        stage("Archive artifacts") {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                archiveArtifacts artifacts: "nginx/nginx.conf.template,nginx/.env,nginx/docker-compose.yml,certs/**", allowEmptyArchive: false
+            }
+        }
+
+        stage("Generate .env file") {
+            agent { docker { image 'ecotracer/back-agent' } }
+            steps {
+                sh """
+                    cat > .env <<EOF
+                        FRONTEND_HOST=${FRONTEND_HOST}
+                        FRONTEND_PORT=${FRONTEND_PORT}
+                        BACKEND_HOST=${BACKEND_HOST}
+                        BACKEND_PORT=${BACKEND_PORT}
+                        CERTS_PATH=${CERTS_PATH}
+                        EOF
+                   """
+            }
+        }
+
+        stage("Deploy Reverse Proxy") {
+            agent { 
+                docker { 
+                    image 'ecotracer/dind'
+                    args '--user root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                } 
+            }
+            steps {
+                sshagent(['creds']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_DIR}"
+
+                        scp -o StrictHostKeyChecking=no nginx/nginx.conf.template ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/
+                        scp -o StrictHostKeyChecking=no nginx/docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/
+
+                        # Restart the reverse proxy container
+                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "
+                            cd ${REMOTE_DIR} && \
+                            docker compose down && \
+                            docker compose up -d --build
+                        "
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Reverse proxy deployed successfully!'
+        }
+        failure {
+            echo 'Deployment failed. Check Jenkins logs.'
+        }
+    }
+}
