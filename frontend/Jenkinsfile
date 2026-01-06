@@ -1,10 +1,13 @@
 pipeline {
     agent none
+
     environment {
-        REPO_URL = 'https://github.com/Fredericsonn/ecotracer.git'
+        REPO_URL    = 'https://github.com/Fredericsonn/ecotracer.git'
         REMOTE_USER = 'eco'
     }
+
     stages {
+
         stage('Load Secrets from Vault') {
             agent any
             steps {
@@ -13,25 +16,20 @@ pipeline {
                         vaultSecrets: [[
                             path: "jenkins/frontend/${ENV}",
                             secretValues: [
-                                [envVar: 'REMOTE_HOST',   vaultKey: 'REMOTE_HOST'],
-                                [envVar: 'REGISTRY_URL',  vaultKey: 'REGISTRY_URL'],
-                                [envVar: 'IMAGE_NAME',    vaultKey: 'IMAGE_NAME'],
-                                [envVar: 'BRANCH',        vaultKey: 'BRANCH'],
-                                [envVar: 'API',  vaultKey: 'API']
+                                [envVar: 'REMOTE_HOST',  vaultKey: 'REMOTE_HOST'],
+                                [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
+                                [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME'],
+                                [envVar: 'BRANCH',       vaultKey: 'BRANCH'],
+                                [envVar: 'API',          vaultKey: 'API']
                             ]
                         ]]
                     ]) {
-                        env.REMOTE_HOST  = REMOTE_HOST
-                        env.REGISTRY_URL = REGISTRY_URL
-                        env.IMAGE_NAME   = IMAGE_NAME
-                        env.BRANCH       = BRANCH
-                        env.API = API
-
-                        echo 'Secrets loaded and exported globally'
+                        env.BRANCH = BRANCH
                     }
                 }
             }
-                }
+        }
+
         stage('Cloning the repository') {
             agent {
                 docker {
@@ -40,7 +38,7 @@ pipeline {
                 }
             }
             steps {
-                git branch: "${BRANCH}", url: "${env.REPO_URL}"
+                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
             }
         }
 
@@ -52,10 +50,17 @@ pipeline {
                 }
             }
             steps {
-                script {
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/frontend/${ENV}",
+                        secretValues: [
+                            [envVar: 'API', vaultKey: 'API']
+                        ]
+                    ]]
+                ]) {
                     sh '''
                         cd frontend
-                        echo "VITE_API=${API}" > .env
+                        echo "VITE_API=$API" > .env
                         rm -rf node_modules package-lock.json
                         npm cache clean --force
                         npm install --no-optional
@@ -86,8 +91,18 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    sh 'docker build -t ${REGISTRY_URL}/${IMAGE_NAME} frontend/'
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/frontend/${ENV}",
+                        secretValues: [
+                            [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
+                            [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME']
+                        ]
+                    ]]
+                ]) {
+                    sh '''
+                        docker build -t $REGISTRY_URL/$IMAGE_NAME frontend/
+                    '''
                 }
             }
         }
@@ -100,11 +115,27 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'registry', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh '''
-                        docker login ${REGISTRY_URL} -u $USERNAME -p $PASSWORD
-                        docker push ${REGISTRY_URL}/${IMAGE_NAME}
-                    '''
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/frontend/${ENV}",
+                        secretValues: [
+                            [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
+                            [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME']
+                        ]
+                    ]]
+                ]) {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'registry',
+                            usernameVariable: 'USERNAME',
+                            passwordVariable: 'PASSWORD'
+                        )
+                    ]) {
+                        sh '''
+                            docker login $REGISTRY_URL -u $USERNAME -p $PASSWORD
+                            docker push $REGISTRY_URL/$IMAGE_NAME
+                        '''
+                    }
                 }
             }
         }
@@ -117,11 +148,31 @@ pipeline {
                 }
             }
             steps {
-                sshagent(['creds']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no "${env.REMOTE_USER}"@"${env.REMOTE_HOST}" "docker stop frontend || true && docker rm frontend || true"
-                        ssh -o StrictHostKeyChecking=no "${env.REMOTE_USER}"@"${env.REMOTE_HOST}" "docker rmi -f ${REGISTRY_URL}/${IMAGE_NAME} && docker run -d --name frontend --network host -e API=${API} ${REGISTRY_URL}/${IMAGE_NAME}"
-                    """
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/frontend/${ENV}",
+                        secretValues: [
+                            [envVar: 'REMOTE_HOST',  vaultKey: 'REMOTE_HOST'],
+                            [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
+                            [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME'],
+                            [envVar: 'API',          vaultKey: 'API']
+                        ]
+                    ]]
+                ]) {
+                    sshagent(['creds']) {
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" \
+                            "docker stop frontend || true && docker rm frontend || true"
+
+                            ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" \
+                            "docker rmi -f $REGISTRY_URL/$IMAGE_NAME || true"
+
+                            ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" \
+                            "docker run -d --name frontend --network host \
+                             -e API=$API \
+                             $REGISTRY_URL/$IMAGE_NAME"
+                        '''
+                    }
                 }
             }
         }
