@@ -90,8 +90,8 @@ pipeline {
                         ]
                     ]]
                 ]) {
-                    // ⬅️ SAME CONTEXT, SAME PATHS
                     sh '''
+                        cd backend
                         docker build -t $REGISTRY_URL/$IMAGE_NAME .
                     '''
                 }
