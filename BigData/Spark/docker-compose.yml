@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  spark-master:
+    image: apache/spark:3.5.0
+    container_name: spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+    network_mode: host
+    volumes:
+      - ./data:/opt/spark/data
+      - ./apps:/opt/spark/apps
+      - ./hadoop-conf:/opt/hadoop-conf
+    environment:
+      - SPARK_MASTER_HOST=0.0.0.0
+      - SPARK_MASTER_PORT=7077
+      - HADOOP_CONF_DIR=/opt/hadoop-conf
+      - HADOOP_NAMENODE_IP=172.31.253.133
+      - HADOOP_DATANODE1_IP=172.31.250.67
+      - HADOOP_DATANODE2_IP=172.31.252.173
+      - HADOOP_DATANODE3_IP=172.31.253.75
+
+  spark-worker-1:
+    image: apache/spark:3.5.0
+    container_name: spark-worker-1
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://172.31.252.37:7077"]
+    network_mode: host
+    volumes:
+      - ./data:/opt/spark/data
+      - ./apps:/opt/spark/apps
+      - ./hadoop-conf:/opt/hadoop-conf
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER_URL=spark://172.31.252.37:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+      - HADOOP_CONF_DIR=/opt/hadoop-conf
+      - HADOOP_NAMENODE_IP=172.31.253.133
+
+  spark-worker-2:
+    image: apache/spark:3.5.0
+    container_name: spark-worker-2
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://172.31.252.37:7077"]
+    network_mode: host
+    volumes:
+      - ./data:/opt/spark/data
+      - ./apps:/opt/spark/apps
+      - ./hadoop-conf:/opt/hadoop-conf
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER_URL=spark://172.31.252.37:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+      - HADOOP_CONF_DIR=/opt/hadoop-conf
+      - HADOOP_NAMENODE_IP=172.31.253.133
