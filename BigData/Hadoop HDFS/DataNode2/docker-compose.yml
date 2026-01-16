@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode2
+    hostname: datanode2
+    ports:
+      - "9864:9864"
+      - "9866:9866"
+      - "9867:9867"
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_datanode_data_dir=/hadoop/dfs/data
+      - HDFS_CONF_dfs_datanode_hostname=datanode2
+      - HDFS_CONF_dfs_client_use_datanode_hostname=true
+      - HDFS_CONF_dfs_permissions_enabled=false
+    volumes:
+      - ./data:/hadoop/dfs/data
+      - ./logs:/hadoop/logs
+    extra_hosts:
+      - "namenode:172.31.253.133"
+    networks:
+      hadoop-network:
+        ipv4_address: 172.20.0.30
+
+  nodemanager:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager2
+    hostname: nodemanager2
+    ports:
+      - "8042:8042"
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - YARN_CONF_yarn_nodemanager_hostname=nodemanager2
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - YARN_CONF_yarn_resourcemanager_address=namenode:8032
+    depends_on:
+      - datanode
+    extra_hosts:
+      - "namenode:172.31.253.133"
+      - "resourcemanager:172.31.253.133"
+    volumes:
+      - ./logs:/hadoop/logs
+    networks:
+      hadoop-network:
+        ipv4_address: 172.20.0.31
+
+networks:
+  hadoop-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
