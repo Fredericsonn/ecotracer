@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import MachinesContainer from './MachinesContainer';
-import { spring } from '../util';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { clearMachines } from '../features/collection/collectionSlice';
 import { redirect } from 'react-router-dom';
+import {spring_core} from "../util";
 
 const AddNewMachine = ({ collectionId, existingMachines, collectionName }) => {
     let machinesToBeAdded = useSelector((state) => state.collectionState).machines;
@@ -27,7 +27,7 @@ const AddNewMachine = ({ collectionId, existingMachines, collectionName }) => {
 
         const data = { id: collectionId, name: collectionName, user, machines: machinesToBeAdded };        
         try {
-            const response = await spring.post('/users/collections/post', data);
+            const response = await spring_core.post('/users/collections/post', data);
             const { msg } = response.data;
             toast.success('machines added successfully', { autoClose: 2000 });
             dispatch(clearMachines());
@@ -43,7 +43,7 @@ const AddNewMachine = ({ collectionId, existingMachines, collectionName }) => {
         const ids = existingMachines.map((m) => m.id);
         const getMachines = async () => {
             try {
-                const response = await spring.get('/machines');
+                const response = await spring_core.get('/machines');
                 let machines = response.data.vehicles.concat(response.data.devices);
                 machines = machines.filter((machine) => !ids.includes(machine.id));
                 setMachines(machines);

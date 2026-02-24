@@ -1,14 +1,14 @@
 import React from 'react'
 import { Form, Link, redirect } from 'react-router-dom';
 import { FormInput, FormSelect, Logo } from '../components';
-import { spring } from "../util/index";
+import { spring_auth } from "../util/index";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-  const response = await spring.post('/users/person/post', data);
+  const response = await spring_auth.post('/api/users/person/post', data);
   toast.success(response.data.msg);
   return redirect('/login');
 

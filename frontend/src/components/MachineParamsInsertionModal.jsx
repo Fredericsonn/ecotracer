@@ -4,7 +4,7 @@ import MachineParamsItem from './MachineParamsItem';
 import MachineParamsForm from './MachineParamsForm';
 import CarbonReportModal from './CarbonReportModal';
 import { useSelector } from 'react-redux';
-import { spring } from '../util';
+import { spring_core } from '../util';
 import { useNavigate } from 'react-router-dom';
 
 export const MachineParamsInsertionContext = createContext();
@@ -42,7 +42,7 @@ const MachineParamsInsertionModal = () => {
 
         let response;
         try {
-            response = await spring.post('/consumptions/post', data);
+            response = await spring_core.post('/consumptions/post', data);
             
         } catch (error) {
             console.log(error);    

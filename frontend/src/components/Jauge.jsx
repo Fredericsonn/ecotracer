@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell } from "recharts";
-import { spring } from "../util/index";
+import { spring_core } from "../util/index";
 
 const RADIAN = Math.PI / 180;
 const impactScores = {
@@ -15,7 +15,7 @@ const ImpactScoreCalculator = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await spring.get("/machines");
+                const response = await spring_core.get("/machines");
                 const resources = response.data.devices.concat(response.data.vehicles);
 
                 let totalVolume = 0;

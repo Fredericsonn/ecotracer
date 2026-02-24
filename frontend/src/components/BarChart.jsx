@@ -11,12 +11,12 @@ import {
     Legend,
     ResponsiveContainer,
 } from 'recharts';
-import { spring } from '../util';
+import { spring_core } from '../util';
 export const loader = async () => {
     try {
         console.log("Début du loader");
 
-        const response = await spring.get('/machines');
+        const response = await spring_core.get('/machines');
         console.log("Réponse de l'API :", response);
 
         const resources = response.data.devices.concat(response.data.vehicles); 

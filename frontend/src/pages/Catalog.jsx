@@ -1,12 +1,12 @@
 import React, { createContext, useState } from "react";
 import { CatalogHeader, MachinesContainer } from "../components";
-import { spring } from "../util";
+import { spring_core } from "../util";
 import { useLoaderData } from "react-router-dom";
 
 const machinesQuery = () => ({
     queryKey: ['machines'],
     queryFn: async () => {
-        const response = await spring.get('/machines');
+        const response = await spring_core.get('/machines');
         const data = response.data;
         return data.vehicles.concat(data.devices);
     },

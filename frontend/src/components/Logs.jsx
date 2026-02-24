@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { spring } from '../util';
+import { spring_core } from '../util';
 
 const Logs = () => {
   const [collections, setCollections] = useState([]);
@@ -27,7 +27,7 @@ const Logs = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await spring.get('/users');
+        const response = await spring_core.get('/users');
         setUsers(response.data);
       } catch (err) {
         setError('Erreur de chargement des utilisateurs');
@@ -40,7 +40,7 @@ const Logs = () => {
     const fetchCollections = async () => {
       try {
         const params = selectedUserId ? { params: { user: selectedUserId } } : {};
-        const response = await spring.get('/users/collections', params);
+        const response = await spring_core.get('/users/collections', params);
         setCollections(response.data);
         setSelectedCollectionId('');
       } catch (err) {
@@ -56,10 +56,10 @@ const Logs = () => {
 
       setLoading(true);
       try {
-        const impact = await spring.get(`/api/collection/${selectedCollectionId}/impact`);
-        const recyclability = await spring.get(`/api/collection/${selectedCollectionId}/recyclable`);
-        const score = await spring.get(`/api/collection/${selectedCollectionId}/score`);
-        const machineResponse = await spring.get(`/api/collection/${selectedCollectionId}/machines/details`);
+        const impact = await spring_core.get(`/api/collection/${selectedCollectionId}/impact`);
+        const recyclability = await spring_core.get(`/api/collection/${selectedCollectionId}/recyclable`);
+        const score = await spring_core.get(`/api/collection/${selectedCollectionId}/score`);
+        const machineResponse = await spring_core.get(`/api/collection/${selectedCollectionId}/machines/details`);
 
         setImpactData({
           impact: impact.data,

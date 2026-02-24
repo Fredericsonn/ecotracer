@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
-import { spring } from '../util';
+import { spring_core } from '../util';
 import MachineParamsItem from '../components/MachineParamsItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveItem } from '../features/optimization/optimizationSlice';
@@ -24,7 +24,7 @@ const AdvancedOptimization = () => {
 
   useEffect(() => {
     const fetchConsumption = async () => {
-      const response = await spring.get('/consumptions/' + consumptionId);
+      const response = await spring_core.get('/consumptions/' + consumptionId);
       const consumption = response.data;
       setItems(consumption.items);
       setCarbonEmitted(consumption.totalCarbonEmitted);
