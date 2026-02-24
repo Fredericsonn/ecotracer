@@ -17,16 +17,8 @@ pipeline {
                 }
             }
             steps {
-                withVault([
-                    vaultSecrets: [[
-                        path: "jenkins/frontend/${ENV}",
-                        secretValues: [
-                            [envVar: 'BRANCH', vaultKey: 'BRANCH']
-                        ]
-                    ]]
-                ]) {
-                    git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
-                }
+                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                
             }
         }
 
