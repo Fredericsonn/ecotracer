@@ -4,31 +4,10 @@ pipeline {
     environment {
         REPO_URL    = 'https://github.com/Fredericsonn/ecotracer.git'
         REMOTE_USER = 'eco'
+        BRANCH = ${ENV}
     }
 
     stages {
-
-        stage('Load Secrets from Vault') {
-            agent any
-            steps {
-                script {
-                    withVault([
-                        vaultSecrets: [[
-                            path: "jenkins/frontend/${ENV}",
-                            secretValues: [
-                                [envVar: 'REMOTE_HOST',  vaultKey: 'REMOTE_HOST'],
-                                [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
-                                [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME'],
-                                [envVar: 'BRANCH',       vaultKey: 'BRANCH'],
-                                [envVar: 'API',          vaultKey: 'API']
-                            ]
-                        ]]
-                    ]) {
-                        env.BRANCH = BRANCH
-                    }
-                }
-            }
-        }
 
         stage('Cloning the repository') {
             agent {
@@ -38,7 +17,16 @@ pipeline {
                 }
             }
             steps {
-                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/frontend/${ENV}",
+                        secretValues: [
+                            [envVar: 'BRANCH', vaultKey: 'BRANCH']
+                        ]
+                    ]]
+                ]) {
+                    git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                }
             }
         }
 
@@ -54,13 +42,14 @@ pipeline {
                     vaultSecrets: [[
                         path: "jenkins/frontend/${ENV}",
                         secretValues: [
-                            [envVar: 'API', vaultKey: 'API']
+                            [envVar: 'CORE_API', vaultKey: 'CORE_API'],
+                            [envVar: 'AUTH_API', vaultKey: 'AUTH_API']
                         ]
                     ]]
                 ]) {
                     sh '''
                         cd frontend
-                        echo "VITE_API=$API" > .env
+                        printf "VITE_CORE_API=%s\\nVITE_AUTH_API=%s\\n" "$CORE_API" "$AUTH_API" > .env
                         rm -rf node_modules package-lock.json
                         npm cache clean --force
                         npm install --no-optional
@@ -155,7 +144,8 @@ pipeline {
                             [envVar: 'REMOTE_HOST',  vaultKey: 'REMOTE_HOST'],
                             [envVar: 'REGISTRY_URL', vaultKey: 'REGISTRY_URL'],
                             [envVar: 'IMAGE_NAME',   vaultKey: 'IMAGE_NAME'],
-                            [envVar: 'API',          vaultKey: 'API']
+                            [envVar: 'CORE_API',          vaultKey: 'CORE_API'],
+                            [envVar: 'AUTH_API',          vaultKey: 'AUTH_API'],
                         ]
                     ]]
                 ]) {
@@ -169,7 +159,7 @@ pipeline {
 
                             ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" \
                             "docker run -d --name frontend --network host \
-                             -e API=$API \
+                             -e CORE_API=$CORE_API -e AUTH_API=$AUTH_API \
                              $REGISTRY_URL/$IMAGE_NAME"
                         '''
                     }
