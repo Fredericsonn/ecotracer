@@ -34,7 +34,7 @@ const CatalogElement = ({ element, parent }) => {
 
   const getMachinesByCategory = async (category) => {
     
-    const response = await spring_core.get('/machines/' + category);
+    const response = await spring_core.get('/api/machines/' + category);
     const machines = response.data;
     setMachines(machines);
   }

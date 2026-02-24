@@ -22,8 +22,8 @@ const QuizPage = () => {
       setLoading(true);
       try {
         const [itemsResponse, consumptionResponse] = await Promise.all([
-          spring_core.get(`/consumptions/${consumptionId}/items`),
-          spring_core.get(`/consumptions/${consumptionId}`),
+          spring_core.get(`/api/consumptions/${consumptionId}/items`),
+          spring_core.get(`/api/consumptions/${consumptionId}`),
         ]);
 
         const items = itemsResponse.data;

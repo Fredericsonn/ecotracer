@@ -27,7 +27,7 @@ const AddNewMachine = ({ collectionId, existingMachines, collectionName }) => {
 
         const data = { id: collectionId, name: collectionName, user, machines: machinesToBeAdded };        
         try {
-            const response = await spring_core.post('/users/collections/post', data);
+            const response = await spring_core.post('/api/users/collections/post', data);
             const { msg } = response.data;
             toast.success('machines added successfully', { autoClose: 2000 });
             dispatch(clearMachines());

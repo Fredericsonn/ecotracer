@@ -15,7 +15,7 @@ const ImpactScoreCalculator = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await spring_core.get("/machines");
+                const response = await spring_core.get("/api/machines");
                 const resources = response.data.devices.concat(response.data.vehicles);
 
                 let totalVolume = 0;

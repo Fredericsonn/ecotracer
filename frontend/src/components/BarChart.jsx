@@ -16,7 +16,7 @@ export const loader = async () => {
     try {
         console.log("Début du loader");
 
-        const response = await spring_core.get('/machines');
+        const response = await spring_core.get('/api/machines');
         console.log("Réponse de l'API :", response);
 
         const resources = response.data.devices.concat(response.data.vehicles); 

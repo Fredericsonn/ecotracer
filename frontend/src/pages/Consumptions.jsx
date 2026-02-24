@@ -8,7 +8,7 @@ import { clearItems } from '../features/consumption/consumptionSlice';
 const consumptionsQuery = (userId) => ({
   queryKey: ['consumptions', userId],
   queryFn: async () => {
-    const response = await spring_core.get('/consumptions', {
+    const response = await spring_core.get('/api/consumptions', {
       params: { userId },
     });
     return response.data.consumptions;

@@ -24,7 +24,7 @@ const AdvancedOptimization = () => {
 
   useEffect(() => {
     const fetchConsumption = async () => {
-      const response = await spring_core.get('/consumptions/' + consumptionId);
+      const response = await spring_core.get('/api/consumptions/' + consumptionId);
       const consumption = response.data;
       setItems(consumption.items);
       setCarbonEmitted(consumption.totalCarbonEmitted);
