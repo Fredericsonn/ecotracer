@@ -20,7 +20,7 @@ export const action = (store) => async ({request}) => {
     const data = {name, user, machines:[]}
 
     try {
-        const response = await spring_core.post('/api/users/collections/post', data);
+        const response = await spring_core.post('/auth/users/collections/post', data);
         const {msg, collection} = response.data;
         toast.success('collection created successfully', {autoClose: 1500});
         return {msg, collection}

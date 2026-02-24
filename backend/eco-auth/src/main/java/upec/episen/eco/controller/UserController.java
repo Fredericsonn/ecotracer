@@ -25,7 +25,7 @@ import upec.episen.eco.service.UserService;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/auth/users")
 public class UserController {
 
     @Autowired

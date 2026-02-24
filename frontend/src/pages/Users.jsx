@@ -3,7 +3,7 @@ import { spring_core } from '../util';
 import { Link, useLoaderData } from 'react-router-dom';
 
 export const loader = async () => {
-    const response = await spring_core.get('/api/users/person');
+    const response = await spring_core.get('/auth/users/person');
     const data = response.data;
     return data;
 }

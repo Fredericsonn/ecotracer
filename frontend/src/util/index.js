@@ -1,11 +1,11 @@
 import axios from "axios";
 
 export const spring_core = axios.create({
-    baseURL: import.meta.env.VITE_CORE_API
+    baseURL: ""
 });
 
 export const spring_auth = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_API
+    baseURL: ""
 });
 
 export const removeDuplicates = (arr) => {

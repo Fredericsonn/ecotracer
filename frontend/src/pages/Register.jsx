@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-  const response = await spring_auth.post('/api/users/person/post', data);
+  const response = await spring_auth.post('/auth/users/person/post', data);
   toast.success(response.data.msg);
   return redirect('/login');
 

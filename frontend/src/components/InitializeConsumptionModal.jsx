@@ -65,7 +65,7 @@ const InitializeConsumptionModal = () => {
     }
     useEffect(() => {
         const fetchCollections = async () => {
-            const response = await spring_core.get('/api/users/collections', { params: { userId: user.id } });
+            const response = await spring_core.get('/auth/users/collections', { params: { userId: user.id } });
             const collections = response.data;
             setCollections(collections);
         };

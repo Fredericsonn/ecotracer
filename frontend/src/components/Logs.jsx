@@ -27,7 +27,7 @@ const Logs = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await spring_core.get('/api/users');
+        const response = await spring_core.get('/auth/users');
         setUsers(response.data);
       } catch (err) {
         setError('Erreur de chargement des utilisateurs');
@@ -40,7 +40,7 @@ const Logs = () => {
     const fetchCollections = async () => {
       try {
         const params = selectedUserId ? { params: { user: selectedUserId } } : {};
-        const response = await spring_core.get('/api/users/collections', params);
+        const response = await spring_core.get('/auth/users/collections', params);
         setCollections(response.data);
         setSelectedCollectionId('');
       } catch (err) {
