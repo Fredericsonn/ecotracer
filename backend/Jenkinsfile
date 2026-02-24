@@ -142,35 +142,34 @@ stage('Deploy (docker compose on remote)') {
                 ]
             ]]
         ]) {
-            sshagent(['creds']) {
-                sh '''
-                    set -e
+                sshagent(['creds']) {
+                    sh '''
+                        set -e
 
-                    # Make sure remote directory exists and copy only compose (no .env / no secrets file)
-                    ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "mkdir -p ~/eco-backend"
-                    scp -o StrictHostKeyChecking=no backend/docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:~/eco-backend/docker-compose.yml"
+                        ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "mkdir -p ~/eco-backend"
+                        scp -o StrictHostKeyChecking=no backend/docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:~/eco-backend/docker-compose.yml"
 
-                    # Run compose with env vars injected only for this SSH command (nothing written on remote disk)
-                    ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" \
-                      "cd ~/eco-backend && \
-                       REGISTRY_URL='${REGISTRY_URL}' \
-                       CORE_IMAGE_NAME='${CORE_IMAGE_NAME}' \
-                       AUTH_IMAGE_NAME='${AUTH_IMAGE_NAME}' \
-                       VAULT_URI='${VAULT_URI}' \
-                       VAULT_TOKEN='${VAULT_TOKEN}' \
-                       docker compose pull && \
-                       REGISTRY_URL='${REGISTRY_URL}' \
-                       CORE_IMAGE_NAME='${CORE_IMAGE_NAME}' \
-                       AUTH_IMAGE_NAME='${AUTH_IMAGE_NAME}' \
-                       VAULT_URI='${VAULT_URI}' \
-                       VAULT_TOKEN='${VAULT_TOKEN}' \
-                       VAULT_MOUNT='${VAULT_MOUNT}' \
-                       VAULT_APP='${VAULT_APP}' \
-                       ENV='${ENV}' \
-                       docker compose up -d --remove-orphans && \
-                       docker image prune -f"
-                '''
-            }
+                        ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "
+                        set -e
+                        cd ~/eco-backend
+
+                        export REGISTRY_URL='${REGISTRY_URL}'
+                        export CORE_IMAGE_NAME='${CORE_IMAGE_NAME}'
+                        export AUTH_IMAGE_NAME='${AUTH_IMAGE_NAME}'
+                        export VAULT_URI='${VAULT_URI}'
+                        export VAULT_TOKEN='${VAULT_TOKEN}'
+                        export VAULT_MOUNT='${VAULT_MOUNT}'
+                        export VAULT_APP='${VAULT_APP}'
+                        export ENV='${ENV}'
+
+                        docker compose down --remove-orphans || true
+                        docker image prune -af
+                        docker compose pull
+                        docker compose up -d --force-recreate --remove-orphans
+                        docker image prune -af
+                        "
+                    '''
+                }
         }
     }
 }
