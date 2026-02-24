@@ -19,7 +19,7 @@ import upec.episen.eco.models.machine.enums.UsageCategory;
 import upec.episen.eco.service.machine.MachineService;
 
 @RestController
-@RequestMapping("/machines")
+@RequestMapping("/api/machines")
 public class MachineController {
 
     @Autowired

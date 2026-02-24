@@ -23,7 +23,7 @@ import upec.episen.eco.service.consumption.ConsumptionItemService;
 import upec.episen.eco.service.consumption.ConsumptionService;
 
 @RestController
-@RequestMapping("/consumptions")
+@RequestMapping("/api/consumptions")
 public class ConsumptionController {
 
     @Autowired
