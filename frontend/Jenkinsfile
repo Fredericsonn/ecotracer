@@ -4,7 +4,7 @@ pipeline {
     environment {
         REPO_URL    = 'https://github.com/Fredericsonn/ecotracer.git'
         REMOTE_USER = 'eco'
-        BRANCH = ${ENV}
+        BRANCH = "${ENV}"
     }
 
     stages {
