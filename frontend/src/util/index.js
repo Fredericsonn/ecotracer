@@ -5,7 +5,7 @@ export const spring_core = axios.create({
 });
 
 export const spring_auth = axios.create({
-    baseURL: ""
+    baseURL: "/api/auth"
 });
 
 export const removeDuplicates = (arr) => {
