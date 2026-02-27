@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export const loader = (store) => async () => {
     const user = store.getState().userState.user;
-    const response = await spring_core.get('/api/collection', {params: {userId: user.id}} );
+    const response = await spring_core.get('/collections', {params: {userId: user.id}} );
     const collections = response.data;
     return collections;
 }
@@ -20,7 +20,7 @@ export const action = (store) => async ({request}) => {
     const data = {name, user, machines:[]}
 
     try {
-        const response = await spring_core.post('/auth/users/collections/post', data);
+        const response = await spring_core.post('/collections/post', data);
         const {msg, collection} = response.data;
         toast.success('collection created successfully', {autoClose: 1500});
         return {msg, collection}

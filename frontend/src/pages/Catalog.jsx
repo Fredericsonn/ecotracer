@@ -6,7 +6,7 @@ import { useLoaderData } from "react-router-dom";
 const machinesQuery = () => ({
     queryKey: ['machines'],
     queryFn: async () => {
-        const response = await spring_core.get('/api/machines');
+        const response = await spring_core.get('/machines');
         const data = response.data;
         return data.vehicles.concat(data.devices);
     },

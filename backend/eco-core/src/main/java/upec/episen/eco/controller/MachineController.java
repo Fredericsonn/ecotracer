@@ -42,4 +42,9 @@ public class MachineController {
         category = Helper.usageCategoryRectifier(category);
         return machineservice.getAllMachinesByUsageCategory(UsageCategory.valueOf(category));
     }
+
+    @GetMapping("/usageCategories")
+    public List<String> getUsageCategories() {
+        return machineservice.getCategories();
+    }
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const spring_core = axios.create({
-    baseURL: ""
+    baseURL: "/api"
 });
 
 export const spring_auth = axios.create({

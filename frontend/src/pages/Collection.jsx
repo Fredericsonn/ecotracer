@@ -8,7 +8,7 @@ export const loader = (store) => async ({params}) => {
   const name = params.name;
   const userId = store.getState().userState.user.id;
   
-  const response = await spring_core.get('/auth/users/collections/' + name, {params: {userId}});
+  const response = await spring_core.get('/collections/' + name, {params: {userId}});
   const {machines, id} = response.data;
 
   return {id, name, machines};

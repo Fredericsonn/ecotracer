@@ -8,7 +8,7 @@ const CatalogHeader = () => {
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const response = await spring_core.get('/api/usageCategories');
+        const response = await spring_core.get('/machines/usageCategories');
         const data = response.data;
         setCategories(data);
       } catch (error) {

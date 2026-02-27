@@ -4,7 +4,7 @@ import { useLoaderData } from 'react-router-dom';
 import { MachineList, MIR } from '../components';
 
 export const loader = async ({ params }) => {
-    const response = await spring_core.get('/api/consumptions/' + params.id)
+    const response = await spring_core.get('/consumptions/' + params.id)
     let consumption = response.data;
 
     // Capitalize first letter of machine.type

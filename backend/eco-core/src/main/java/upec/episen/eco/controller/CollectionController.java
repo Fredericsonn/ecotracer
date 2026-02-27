@@ -33,7 +33,7 @@ import upec.episen.eco.service.CollectionService;
 
 
 @RestController
-@RequestMapping("/api/collection")
+@RequestMapping("/api/collections")
 public class CollectionController {
 
     @Autowired
@@ -52,12 +52,12 @@ public class CollectionController {
         return ResponseEntity.ok(collectionService.getAllCollections());
     }
 
-    @GetMapping("/collections/{name}")
+    @GetMapping("/{name}")
     public Collection getCollectionByName(@PathVariable String name, @RequestParam(name="userId", required=true) Long userId) throws UserNotFoundException {
         return collectionService.getCollectionByUserAndName(userId, name);
     }
-    
-    @PostMapping("/collections/post")
+
+    @PostMapping("/post")
     public ResponseEntity<?> postCollection(@RequestBody Collection collection)  {
         Map<String, Object> body = new HashMap<String, Object>();
         String msg;
