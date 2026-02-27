@@ -14,7 +14,7 @@ export const action = (store) => async ({ request }) => {
   
   try {
     // we send the authentication request
-    const response = await spring_auth.post('/api/auth', data);
+    const response = await spring_auth.post('/auth', data);
     
     const { user, token } = response.data;
 

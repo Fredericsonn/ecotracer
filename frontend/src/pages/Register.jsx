@@ -1,4 +1,3 @@
-import React from 'react'
 import { Form, Link, redirect } from 'react-router-dom';
 import { FormInput, FormSelect, Logo } from '../components';
 import { spring_auth } from "../util/index";
