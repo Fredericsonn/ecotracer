@@ -1,5 +1,5 @@
 import React from 'react';
-import { spring } from '../util'
+import { spring_core } from '../util'
 import { useLoaderData } from 'react-router-dom';
 import { CatalogHeader, AddNewMachine, MachinesContainer } from '../components';
 import { useState } from 'react';
@@ -8,7 +8,7 @@ export const loader = (store) => async ({params}) => {
   const name = params.name;
   const userId = store.getState().userState.user.id;
   
-  const response = await spring.get('/users/collections/' + name, {params: {userId}});
+  const response = await spring_core.get('/collections/' + name, {params: {userId}});
   const {machines, id} = response.data;
 
   return {id, name, machines};

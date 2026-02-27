@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { spring } from '../util'
+import { spring_core } from '../util'
 import { useLoaderData } from 'react-router-dom';
 import { MachineList, MIR } from '../components';
 
 export const loader = async ({ params }) => {
-    const response = await spring.get('/consumptions/' + params.id)
+    const response = await spring_core.get('/consumptions/' + params.id)
     let consumption = response.data;
 
     // Capitalize first letter of machine.type
@@ -33,7 +33,7 @@ const Consumption = () => {
 
     useEffect(() => {
         const getItems = async () => {
-            const response = await spring.get(`/consumptions/${consumption.id}/items`);
+            const response = await spring_core.get(`/consumptions/${consumption.id}/items`);
             const data = response.data;
 
             // Mapper les données du back pour les adapter au component MachineItem
@@ -77,7 +77,7 @@ const Consumption = () => {
         const fetchMIR = async () => {
             const data = consumption;
 
-            const response = await spring.post('/consumptions/mir', data);
+            const response = await spring_core.post('/consumptions/mir', data);
             const { score, report } = response.data;
 
             setMir({

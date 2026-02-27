@@ -25,7 +25,7 @@ import upec.episen.eco.service.UserService;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/auth/users")
 public class UserController {
 
     @Autowired
@@ -97,7 +97,7 @@ public class UserController {
     }
     
     @PutMapping("/put/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable long id, @RequestBody Map<String, Object> updates) {
+    public ResponseEntity<?> updateUser(@PathVariable("id") long id, @RequestBody Map<String, Object> updates) {
         Map<String, Object> body = new HashMap<String, Object>();
         HttpStatus status;
         String msg;

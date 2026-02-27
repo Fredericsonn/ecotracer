@@ -23,7 +23,7 @@ import upec.episen.eco.service.consumption.ConsumptionItemService;
 import upec.episen.eco.service.consumption.ConsumptionService;
 
 @RestController
-@RequestMapping("/consumptions")
+@RequestMapping("/api/consumptions")
 public class ConsumptionController {
 
     @Autowired
@@ -56,7 +56,7 @@ public class ConsumptionController {
     }
 
     @GetMapping("/{id}")
-    public Consumption getConsumptionById(@PathVariable long id) {
+    public Consumption getConsumptionById(@PathVariable("id") long id) {
 
         try {
             return consumptionservice.getConsumptionById(id);
@@ -66,7 +66,7 @@ public class ConsumptionController {
         }
     }
     @GetMapping("/{id}/items")
-    public List<ConsumptionItem> getOrderedItems(@PathVariable Long id){
+    public List<ConsumptionItem> getOrderedItems(@PathVariable("id") Long id){
         return consumptionservice.getOrderedItemsById(id);
     }
 

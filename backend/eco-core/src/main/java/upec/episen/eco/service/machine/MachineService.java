@@ -74,4 +74,15 @@ public class MachineService{
         else throw new RuntimeException("Invalid machine type");
     }
 
+    public List<String> getCategories() {
+        UsageCategory[] data = UsageCategory.values();
+        List<String> categories = new ArrayList<String>();
+
+        for (UsageCategory category : data) {
+            categories.add(String.valueOf(category));
+        }
+
+        return categories;
+    }
+
 }

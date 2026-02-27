@@ -19,7 +19,7 @@ import upec.episen.eco.models.machine.enums.UsageCategory;
 import upec.episen.eco.service.machine.MachineService;
 
 @RestController
-@RequestMapping("/machines")
+@RequestMapping("/api/machines")
 public class MachineController {
 
     @Autowired
@@ -38,8 +38,13 @@ public class MachineController {
     }
 
     @GetMapping("/{category}")
-    public List<Machine> getMachinesByUsageCategory(@PathVariable String category) {
+    public List<Machine> getMachinesByUsageCategory(@PathVariable("category") String category) {
         category = Helper.usageCategoryRectifier(category);
         return machineservice.getAllMachinesByUsageCategory(UsageCategory.valueOf(category));
+    }
+
+    @GetMapping("/usageCategories")
+    public List<String> getUsageCategories() {
+        return machineservice.getCategories();
     }
 }

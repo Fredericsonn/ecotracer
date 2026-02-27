@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { Form, Link, redirect } from 'react-router-dom';
 import { FormInput } from '../components'
 import 'react-toastify/dist/ReactToastify.css';
-import { spring } from '../util';
+import { spring_auth } from '../util';
 import { login } from '../features/user/userSlice';
 import { toast } from 'react-toastify';
 
@@ -14,7 +14,7 @@ export const action = (store) => async ({ request }) => {
   
   try {
     // we send the authentication request
-    const response = await spring.post('/auth', data);
+    const response = await spring_auth.post('/auth', data);
     
     const { user, token } = response.data;
 

@@ -1,9 +1,9 @@
 import React from 'react'
-import { spring } from '../util';
+import { spring_core } from '../util';
 import { Link, useLoaderData } from 'react-router-dom';
 
 export const loader = async () => {
-    const response = await spring.get('/users/person');
+    const response = await spring_core.get('/auth/users/person');
     const data = response.data;
     return data;
 }

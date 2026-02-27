@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { spring } from '../util';
+import { spring_core } from '../util';
 
 const TableComponent = () => {
   const [data, setData] = useState([]);
@@ -10,7 +10,7 @@ const TableComponent = () => {
     const fetchData = async () => {
       try {
         console.log(user);
-        const response = await spring.get('/machines');
+        const response = await spring_core.get('/machines');
         setData(response.data.devices.concat(response.data.vehicles));
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);

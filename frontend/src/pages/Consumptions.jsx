@@ -1,6 +1,6 @@
 import React from 'react'
 import { InitializeConsumptionModal } from '../components';
-import { spring } from '../util';
+import { spring_core } from '../util';
 import { useLoaderData, useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearItems } from '../features/consumption/consumptionSlice';
@@ -8,7 +8,7 @@ import { clearItems } from '../features/consumption/consumptionSlice';
 const consumptionsQuery = (userId) => ({
   queryKey: ['consumptions', userId],
   queryFn: async () => {
-    const response = await spring.get('/consumptions', {
+    const response = await spring_core.get('/consumptions', {
       params: { userId },
     });
     return response.data.consumptions;

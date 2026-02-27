@@ -33,7 +33,7 @@ import upec.episen.eco.service.CollectionService;
 
 
 @RestController
-@RequestMapping("/api/collection")
+@RequestMapping("/api/collections")
 public class CollectionController {
 
     @Autowired
@@ -52,12 +52,12 @@ public class CollectionController {
         return ResponseEntity.ok(collectionService.getAllCollections());
     }
 
-    @GetMapping("/collections/{name}")
-    public Collection getCollectionByName(@PathVariable String name, @RequestParam(name="userId", required=true) Long userId) throws UserNotFoundException {
+    @GetMapping("/{name}")
+    public Collection getCollectionByName(@PathVariable("name") String name, @RequestParam(name="userId", required=true) Long userId) throws UserNotFoundException {
         return collectionService.getCollectionByUserAndName(userId, name);
     }
-    
-    @PostMapping("/collections/post")
+
+    @PostMapping("/post")
     public ResponseEntity<?> postCollection(@RequestBody Collection collection)  {
         Map<String, Object> body = new HashMap<String, Object>();
         String msg;
@@ -81,22 +81,22 @@ public class CollectionController {
 
 
     @GetMapping("/{id}/impact")
-    public ResponseEntity<Double> getCollectionImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<Double> getCollectionImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         double score = collectionService.calculateCollectionImpact(id);
         return ResponseEntity.ok(score);
     }
     @GetMapping("/{id}/recyclable")
-    public ResponseEntity<RecyclabilityResult> getRecyclabilityImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<RecyclabilityResult> getRecyclabilityImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         RecyclabilityResult result = collectionService.calculateCollectionRecyclability(id); 
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}/score")
-    public ResponseEntity<Double> getScoreImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<Double> getScoreImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         double result = collectionService.calculateScoreImapct(id);
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}/machines/details")
-    public ResponseEntity<List<MachineDetailDto>> getMachineDetails(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<List<MachineDetailDto>> getMachineDetails(@PathVariable("id") Long id) throws CollectionNotFoundException {
         Collection collection = collectionService.getCollectionById(id);
         List<MachineDetailDto> machineDetails = new ArrayList<>();
         MatterImpactScore calculator = new MatterImpactScore();

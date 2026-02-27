@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { clearMachines } from '../features/collection/collectionSlice';
-import { spring } from '../util';
+import { spring_core } from '../util';
 import { SelectMachines, SelectCollections, MachinesContainer, FormInput, MachineParamsInsertionModal } from '../components';
 import { addName } from '../features/consumption/consumptionSlice';
 import { useNavigate } from 'react-router-dom';
@@ -56,7 +56,7 @@ const InitializeConsumptionModal = () => {
                 items
             };
 
-            const response = await spring.post('/consumptions/post/temp', data);
+            const response = await spring_core.post('/consumptions/post/temp', data);
             const consumption = response.data;
 
             document.getElementById('initializeConsumption').close();
@@ -65,12 +65,12 @@ const InitializeConsumptionModal = () => {
     }
     useEffect(() => {
         const fetchCollections = async () => {
-            const response = await spring.get('/users/collections', { params: { userId: user.id } });
+            const response = await spring_core.get('/collections', { params: { userId: user.id } });
             const collections = response.data;
             setCollections(collections);
         };
         const fetchCatalog = async () => {
-            const response = await spring.get('/machines');
+            const response = await spring_core.get('/machines');
             let machines = response.data.devices.concat(response.data.vehicles);
             const ids = selectedMachines.map((m) => m.id);
             machines = machines.filter((m) => !ids.includes(m.id));

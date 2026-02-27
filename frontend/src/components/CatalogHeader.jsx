@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { spring } from '../util';
+import { spring_core } from '../util';
 import { CatalogContext } from '../pages/Catalog';
 
 const CatalogHeader = () => {
@@ -8,7 +8,7 @@ const CatalogHeader = () => {
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const response = await spring.get('/usageCategories');
+        const response = await spring_core.get('/machines/usageCategories');
         const data = response.data;
         setCategories(data);
       } catch (error) {
@@ -34,7 +34,7 @@ const CatalogElement = ({ element, parent }) => {
 
   const getMachinesByCategory = async (category) => {
     
-    const response = await spring.get('/machines/' + category);
+    const response = await spring_core.get('/machines/' + category);
     const machines = response.data;
     setMachines(machines);
   }

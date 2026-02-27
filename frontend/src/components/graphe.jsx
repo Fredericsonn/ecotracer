@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { BarChart } from "@tremor/react";
-import { spring } from '../util';
+import { spring_core } from '../util';
 
 // Loader function to fetch data
 export const loader = async () => {
     try {
-        const response = await spring.get('/machines');
+        const response = await spring_core.get('/machines');
         const data = response.data;
         console.log('Data received:', data);
         return data;
