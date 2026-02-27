@@ -53,7 +53,7 @@ public class CollectionController {
     }
 
     @GetMapping("/{name}")
-    public Collection getCollectionByName(@PathVariable String name, @RequestParam(name="userId", required=true) Long userId) throws UserNotFoundException {
+    public Collection getCollectionByName(@PathVariable("name") String name, @RequestParam(name="userId", required=true) Long userId) throws UserNotFoundException {
         return collectionService.getCollectionByUserAndName(userId, name);
     }
 
