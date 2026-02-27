@@ -33,7 +33,7 @@ const Consumption = () => {
 
     useEffect(() => {
         const getItems = async () => {
-            const response = await spring_core.get(`/api/consumptions/${consumption.id}/items`);
+            const response = await spring_core.get(`/consumptions/${consumption.id}/items`);
             const data = response.data;
 
             // Mapper les données du back pour les adapter au component MachineItem
@@ -77,7 +77,7 @@ const Consumption = () => {
         const fetchMIR = async () => {
             const data = consumption;
 
-            const response = await spring_core.post('/api/consumptions/mir', data);
+            const response = await spring_core.post('/consumptions/mir', data);
             const { score, report } = response.data;
 
             setMir({

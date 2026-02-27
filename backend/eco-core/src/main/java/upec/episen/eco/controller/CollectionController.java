@@ -81,22 +81,22 @@ public class CollectionController {
 
 
     @GetMapping("/{id}/impact")
-    public ResponseEntity<Double> getCollectionImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<Double> getCollectionImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         double score = collectionService.calculateCollectionImpact(id);
         return ResponseEntity.ok(score);
     }
     @GetMapping("/{id}/recyclable")
-    public ResponseEntity<RecyclabilityResult> getRecyclabilityImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<RecyclabilityResult> getRecyclabilityImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         RecyclabilityResult result = collectionService.calculateCollectionRecyclability(id); 
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}/score")
-    public ResponseEntity<Double> getScoreImpact(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<Double> getScoreImpact(@PathVariable("id") Long id) throws CollectionNotFoundException {
         double result = collectionService.calculateScoreImapct(id);
         return ResponseEntity.ok(result);
     }
     @GetMapping("/{id}/machines/details")
-    public ResponseEntity<List<MachineDetailDto>> getMachineDetails(@PathVariable Long id) throws CollectionNotFoundException {
+    public ResponseEntity<List<MachineDetailDto>> getMachineDetails(@PathVariable("id") Long id) throws CollectionNotFoundException {
         Collection collection = collectionService.getCollectionById(id);
         List<MachineDetailDto> machineDetails = new ArrayList<>();
         MatterImpactScore calculator = new MatterImpactScore();

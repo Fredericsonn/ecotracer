@@ -38,7 +38,7 @@ public class MachineController {
     }
 
     @GetMapping("/{category}")
-    public List<Machine> getMachinesByUsageCategory(@PathVariable String category) {
+    public List<Machine> getMachinesByUsageCategory(@PathVariable("category") String category) {
         category = Helper.usageCategoryRectifier(category);
         return machineservice.getAllMachinesByUsageCategory(UsageCategory.valueOf(category));
     }

@@ -56,7 +56,7 @@ const InitializeConsumptionModal = () => {
                 items
             };
 
-            const response = await spring_core.post('/api/consumptions/post/temp', data);
+            const response = await spring_core.post('/consumptions/post/temp', data);
             const consumption = response.data;
 
             document.getElementById('initializeConsumption').close();
@@ -70,7 +70,7 @@ const InitializeConsumptionModal = () => {
             setCollections(collections);
         };
         const fetchCatalog = async () => {
-            const response = await spring_core.get('/api/machines');
+            const response = await spring_core.get('/machines');
             let machines = response.data.devices.concat(response.data.vehicles);
             const ids = selectedMachines.map((m) => m.id);
             machines = machines.filter((m) => !ids.includes(m.id));

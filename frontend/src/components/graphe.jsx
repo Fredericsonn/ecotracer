@@ -6,7 +6,7 @@ import { spring_core } from '../util';
 // Loader function to fetch data
 export const loader = async () => {
     try {
-        const response = await spring_core.get('/api/machines');
+        const response = await spring_core.get('/machines');
         const data = response.data;
         console.log('Data received:', data);
         return data;

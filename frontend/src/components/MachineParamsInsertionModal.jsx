@@ -42,7 +42,7 @@ const MachineParamsInsertionModal = () => {
 
         let response;
         try {
-            response = await spring_core.post('/api/consumptions/post', data);
+            response = await spring_core.post('/consumptions/post', data);
             
         } catch (error) {
             console.log(error);    

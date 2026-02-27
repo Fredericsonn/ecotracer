@@ -56,10 +56,10 @@ const Logs = () => {
 
       setLoading(true);
       try {
-        const impact = await spring_core.get(`/api/collection/${selectedCollectionId}/impact`);
-        const recyclability = await spring_core.get(`/api/collection/${selectedCollectionId}/recyclable`);
-        const score = await spring_core.get(`/api/collection/${selectedCollectionId}/score`);
-        const machineResponse = await spring_core.get(`/api/collection/${selectedCollectionId}/machines/details`);
+        const impact = await spring_core.get(`/collection/${selectedCollectionId}/impact`);
+        const recyclability = await spring_core.get(`/collection/${selectedCollectionId}/recyclable`);
+        const score = await spring_core.get(`/collection/${selectedCollectionId}/score`);
+        const machineResponse = await spring_core.get(`/collection/${selectedCollectionId}/machines/details`);
 
         setImpactData({
           impact: impact.data,

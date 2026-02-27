@@ -22,8 +22,8 @@ const QuizPage = () => {
       setLoading(true);
       try {
         const [itemsResponse, consumptionResponse] = await Promise.all([
-          spring_core.get(`/api/consumptions/${consumptionId}/items`),
-          spring_core.get(`/api/consumptions/${consumptionId}`),
+          spring_core.get(`/consumptions/${consumptionId}/items`),
+          spring_core.get(`/consumptions/${consumptionId}`),
         ]);
 
         const items = itemsResponse.data;
@@ -62,9 +62,9 @@ const QuizPage = () => {
         constraints[item.id] = parseFloat(answers[item.id]) || 0;
       });
       
-      await spring_core.post(`/api/minimal/constraints/${consumptionId}`, constraints);
+      await spring_core.post(`/minimal/constraints/${consumptionId}`, constraints);
       
-      const optimizeResponse = await spring_core.post(`/api/minimal/optimize/${consumptionId}`);
+      const optimizeResponse = await spring_core.post(`/minimal/optimize/${consumptionId}`);
       setOptimizationResult(optimizeResponse.data);
       setIsOptimized(true);
     } catch (err) {

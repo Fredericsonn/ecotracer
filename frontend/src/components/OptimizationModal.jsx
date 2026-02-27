@@ -38,7 +38,7 @@ const OptimizationModal = ({ consumptionId, carbonEmitted }) => {
             carbonReductionPercentageCi: goals.emissionGoal / 100
         }
         
-        const response = await spring_core.post("/api/optimize/advanced", data)
+        const response = await spring_core.post("/optimize/advanced", data)
         const optimization = response.data;
 
         setOptimization(optimization);
