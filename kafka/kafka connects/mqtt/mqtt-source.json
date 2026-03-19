@@ -1,0 +1,19 @@
+{
+  "name": "mqtt-energy-source",
+  "config": {
+    "connector.class": "be.jovacon.kafka.connect.MQTTSourceConnector",
+    "tasks.max": "1",
+
+    "mqtt.broker": "${vault:kafka/mqtt:broker}",
+    "mqtt.topic": "${vault:kafka/mqtt:topic}",
+    "mqtt.clientID": "${vault:kafka/mqtt:clientID}",
+
+    "kafka.topic": "energy-streaming",
+
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter.schemas.enable": "false",
+
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
