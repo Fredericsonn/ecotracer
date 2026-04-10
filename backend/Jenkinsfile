@@ -40,11 +40,7 @@ pipeline {
 
         stage('Build Docker images') {
             agent {
-                docker {
-                    image 'ecotracer/dind'
-                    args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
-                }
-            }
+            docker { image 'ecotracer/dind' args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""' } }
             steps {
                 withVault([
                     vaultSecrets: [[
@@ -56,26 +52,37 @@ pipeline {
                         ]
                     ]]
                 ]) {
-                    sh '''
-                        cd backend
 
-                        # Build eco-core
-                        docker build \
-                          -f eco-core/Dockerfile \
-                          -t $REGISTRY_URL/$CORE_IMAGE_NAME:$BUILD_NUMBER \
-                          -t $REGISTRY_URL/$CORE_IMAGE_NAME:latest \
-                          .
+                withCredentials([file(credentialsId: 'vault-ca-cert', variable: 'VAULT_CA_CERT')]) {
+                sh '''
+                    set -e
+                    cd backend
 
-                        # Build eco-auth
-                        docker build \
-                          -f eco-auth/Dockerfile \
-                          -t $REGISTRY_URL/$AUTH_IMAGE_NAME:$BUILD_NUMBER \
-                          -t $REGISTRY_URL/$AUTH_IMAGE_NAME:latest \
-                          .
-                    '''
-                }
+                    # Inject Vault CA cert into build contexts
+                    cp "$VAULT_CA_CERT" eco-core/vault-ca.crt
+                    cp "$VAULT_CA_CERT" eco-auth/vault-ca.crt
+
+                    # Build eco-core
+                    docker build \
+                      -f eco-core/Dockerfile \
+                      -t $REGISTRY_URL/$CORE_IMAGE_NAME:$BUILD_NUMBER \
+                      -t $REGISTRY_URL/$CORE_IMAGE_NAME:latest \
+                      .
+
+                    # Build eco-auth
+                    docker build \
+                      -f eco-auth/Dockerfile \
+                      -t $REGISTRY_URL/$AUTH_IMAGE_NAME:$BUILD_NUMBER \
+                      -t $REGISTRY_URL/$AUTH_IMAGE_NAME:latest \
+                      .
+
+                    # Cleanup
+                    rm -f eco-core/vault-ca.crt eco-auth/vault-ca.crt
+                '''
             }
         }
+    }
+}
 
         stage('Push Docker images') {
             agent {
@@ -105,10 +112,8 @@ pipeline {
                         sh '''
                             docker login $REGISTRY_URL -u "$USERNAME" -p "$PASSWORD"
 
-                            docker push $REGISTRY_URL/$CORE_IMAGE_NAME:$BUILD_NUMBER
                             docker push $REGISTRY_URL/$CORE_IMAGE_NAME:latest
 
-                            docker push $REGISTRY_URL/$AUTH_IMAGE_NAME:$BUILD_NUMBER
                             docker push $REGISTRY_URL/$AUTH_IMAGE_NAME:latest
                         '''
                     }
