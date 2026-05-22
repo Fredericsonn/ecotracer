@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+data:
+  VAULT_APP: backend
+  VAULT_MOUNT: jenkins
+  ENV: dev
+  VAULT_URI: http://172.31.250.60:8200
