@@ -5,12 +5,15 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8081"
+    volumes:
+      - ${TRUST_STORE_PATH}:/opt/vault/vault-truststore.jks:ro
     environment:
       - VAULT_URI=${VAULT_URI}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_MOUNT=${VAULT_MOUNT}
       - VAULT_APP=${VAULT_APP}
       - ENV=${ENV}
+      - TRUST_STORE_PATH=file:/opt/vault/vault-truststore.jks
 
   eco-core:
     image: ${REGISTRY_URL}/${CORE_IMAGE_NAME}:latest
@@ -18,9 +21,12 @@ services:
     restart: unless-stopped
     ports:
       - "8082:8082"
+    volumes:
+      - ${TRUST_STORE_PATH}:/opt/vault/vault-truststore.jks:ro
     environment:
       - VAULT_URI=${VAULT_URI}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - VAULT_MOUNT=${VAULT_MOUNT}
       - VAULT_APP=${VAULT_APP}
       - ENV=${ENV}
+      - TRUST_STORE_PATH=file:/opt/vault/vault-truststore.jks

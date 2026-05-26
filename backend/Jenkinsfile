@@ -11,8 +11,8 @@ pipeline {
         stage('Cloning the repository') {
             agent { docker { image 'ecotracer/back-agent' } }
             steps {
-                    git branch: "${ENV}", url: "${env.REPO_URL}"
-                }
+                git branch: "${ENV}", url: "${env.REPO_URL}"
+            }
         }
 
         stage('Build (multi-module)') {
@@ -40,7 +40,11 @@ pipeline {
 
         stage('Build Docker images') {
             agent {
-            docker { image 'ecotracer/dind' args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""' } }
+                docker {
+                    image 'ecotracer/dind'
+                    args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                }
+            }
             steps {
                 withVault([
                     vaultSecrets: [[
@@ -53,36 +57,36 @@ pipeline {
                     ]]
                 ]) {
 
-                withCredentials([file(credentialsId: 'vault-ca-cert', variable: 'VAULT_CA_CERT')]) {
-                sh '''
-                    set -e
-                    cd backend
+                    withCredentials([file(credentialsId: 'vault-ca-cert', variable: 'VAULT_CA_CERT')]) {
+                        sh '''
+                            set -e
+                            cd backend
 
-                    # Inject Vault CA cert into build contexts
-                    cp "$VAULT_CA_CERT" eco-core/vault-ca.crt
-                    cp "$VAULT_CA_CERT" eco-auth/vault-ca.crt
+                            # Inject Vault CA cert into build contexts
+                            cp "$VAULT_CA_CERT" eco-core/vault-ca.crt
+                            cp "$VAULT_CA_CERT" eco-auth/vault-ca.crt
 
-                    # Build eco-core
-                    docker build \
-                      -f eco-core/Dockerfile \
-                      -t $REGISTRY_URL/$CORE_IMAGE_NAME:$BUILD_NUMBER \
-                      -t $REGISTRY_URL/$CORE_IMAGE_NAME:latest \
-                      .
+                            # Build eco-core
+                            docker build \
+                              -f eco-core/Dockerfile \
+                              -t $REGISTRY_URL/$CORE_IMAGE_NAME:$BUILD_NUMBER \
+                              -t $REGISTRY_URL/$CORE_IMAGE_NAME:latest \
+                              .
 
-                    # Build eco-auth
-                    docker build \
-                      -f eco-auth/Dockerfile \
-                      -t $REGISTRY_URL/$AUTH_IMAGE_NAME:$BUILD_NUMBER \
-                      -t $REGISTRY_URL/$AUTH_IMAGE_NAME:latest \
-                      .
+                            # Build eco-auth
+                            docker build \
+                              -f eco-auth/Dockerfile \
+                              -t $REGISTRY_URL/$AUTH_IMAGE_NAME:$BUILD_NUMBER \
+                              -t $REGISTRY_URL/$AUTH_IMAGE_NAME:latest \
+                              .
 
-                    # Cleanup
-                    rm -f eco-core/vault-ca.crt eco-auth/vault-ca.crt
-                '''
+                            # Cleanup
+                            rm -f eco-core/vault-ca.crt eco-auth/vault-ca.crt
+                        '''
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Push Docker images') {
             agent {
@@ -113,7 +117,6 @@ pipeline {
                             docker login $REGISTRY_URL -u "$USERNAME" -p "$PASSWORD"
 
                             docker push $REGISTRY_URL/$CORE_IMAGE_NAME:latest
-
                             docker push $REGISTRY_URL/$AUTH_IMAGE_NAME:latest
                         '''
                     }
@@ -121,64 +124,65 @@ pipeline {
             }
         }
 
-stage('Deploy (docker compose on remote)') {
-    agent {
-        docker {
-            image 'ecotracer/dind'
-            args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
-        }
-    }
-
-    steps {
-        withVault([
-            vaultSecrets: [[
-                path: "jenkins/backend/${ENV}",
-                secretValues: [
-                    [envVar: 'REMOTE_HOST',       vaultKey: 'REMOTE_HOST'],
-                    [envVar: 'REGISTRY_URL',      vaultKey: 'REGISTRY_URL'],
-
-                    [envVar: 'CORE_IMAGE_NAME',   vaultKey: 'CORE_IMAGE_NAME'],
-                    [envVar: 'AUTH_IMAGE_NAME',   vaultKey: 'AUTH_IMAGE_NAME'],
-
-                    [envVar: 'VAULT_URI',         vaultKey: 'VAULT_URI'],
-                    [envVar: 'VAULT_TOKEN',       vaultKey: 'VAULT_TOKEN'],
-                    [envVar: 'VAULT_MOUNT',         vaultKey: 'VAULT_MOUNT'],
-                    [envVar: 'VAULT_APP',       vaultKey: 'VAULT_APP'],
-                ]
-            ]]
-        ]) {
-                sshagent(['creds']) {
-                    sh '''
-                        set -e
-
-                        ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "mkdir -p ~/eco-backend"
-                        scp -o StrictHostKeyChecking=no backend/docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:~/eco-backend/docker-compose.yml"
-
-                        ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "
-                        set -e
-                        cd ~/eco-backend
-
-                        export REGISTRY_URL='${REGISTRY_URL}'
-                        export CORE_IMAGE_NAME='${CORE_IMAGE_NAME}'
-                        export AUTH_IMAGE_NAME='${AUTH_IMAGE_NAME}'
-                        export VAULT_URI='${VAULT_URI}'
-                        export VAULT_TOKEN='${VAULT_TOKEN}'
-                        export VAULT_MOUNT='${VAULT_MOUNT}'
-                        export VAULT_APP='${VAULT_APP}'
-                        export ENV='${ENV}'
-
-                        docker compose down --remove-orphans || true
-                        docker image prune -af
-                        docker compose pull
-                        docker compose up -d --force-recreate --remove-orphans
-                        docker image prune -af
-                        "
-                    '''
+        stage('Deploy (docker compose on remote)') {
+            agent {
+                docker {
+                    image 'ecotracer/dind'
+                    args '--user root --restart always -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
                 }
-        }
-    }
-}
+            }
 
+            steps {
+                withVault([
+                    vaultSecrets: [[
+                        path: "jenkins/backend/${ENV}",
+                        secretValues: [
+                            [envVar: 'REMOTE_HOST',       vaultKey: 'REMOTE_HOST'],
+                            [envVar: 'REGISTRY_URL',      vaultKey: 'REGISTRY_URL'],
+
+                            [envVar: 'CORE_IMAGE_NAME',   vaultKey: 'CORE_IMAGE_NAME'],
+                            [envVar: 'AUTH_IMAGE_NAME',   vaultKey: 'AUTH_IMAGE_NAME'],
+
+                            [envVar: 'VAULT_URI',         vaultKey: 'VAULT_URI'],
+                            [envVar: 'VAULT_TOKEN',       vaultKey: 'VAULT_TOKEN'],
+                            [envVar: 'VAULT_MOUNT',       vaultKey: 'VAULT_MOUNT'],
+                            [envVar: 'VAULT_APP',         vaultKey: 'VAULT_APP'],
+                            [envVar: 'TRUST_STORE_PATH',  vaultKey: 'TRUST_STORE_PATH']
+                        ]
+                    ]]
+                ]) {
+                    sshagent(['creds']) {
+                        sh '''
+                            set -e
+
+                            ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "mkdir -p ~/eco-backend"
+                            scp -o StrictHostKeyChecking=no backend/docker-compose.yml "$REMOTE_USER@$REMOTE_HOST:~/eco-backend/docker-compose.yml"
+
+                            ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "
+                            set -e
+                            cd ~/eco-backend
+
+                            export REGISTRY_URL='${REGISTRY_URL}'
+                            export CORE_IMAGE_NAME='${CORE_IMAGE_NAME}'
+                            export AUTH_IMAGE_NAME='${AUTH_IMAGE_NAME}'
+                            export VAULT_URI='${VAULT_URI}'
+                            export VAULT_TOKEN='${VAULT_TOKEN}'
+                            export VAULT_MOUNT='${VAULT_MOUNT}'
+                            export VAULT_APP='${VAULT_APP}'
+                            export TRUST_STORE_PATH='${TRUST_STORE_PATH}'
+                            export ENV='${ENV}'
+
+                            docker compose down --remove-orphans || true
+                            docker image prune -af
+                            docker compose pull
+                            docker compose up -d --force-recreate --remove-orphans
+                            docker image prune -af
+                            "
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
