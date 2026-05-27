@@ -23,15 +23,27 @@ spec:
           ports:
             - name: http
               containerPort: 8082
+
           envFrom:
             - configMapRef:
                 name: core-config
+
           env:
             - name: VAULT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: core-vault
                   key: VAULT_TOKEN
+
+            - name: TRUST_STORE_PATH
+              value: file:/opt/vault/vault-truststore.jks
+
+          volumeMounts:
+            - name: vault-truststore
+              mountPath: /opt/vault/vault-truststore.jks
+              subPath: vault-truststore.jks
+              readOnly: true
+
           resources:
             requests:
               cpu: 100m
@@ -39,13 +51,20 @@ spec:
             limits:
               cpu: 750m
               memory: 768Mi
+
           readinessProbe:
             tcpSocket:
               port: http
             initialDelaySeconds: 20
             periodSeconds: 10
+
           livenessProbe:
             tcpSocket:
               port: http
             initialDelaySeconds: 60
             periodSeconds: 20
+
+      volumes:
+        - name: vault-truststore
+          secret:
+            secretName: vault-truststore

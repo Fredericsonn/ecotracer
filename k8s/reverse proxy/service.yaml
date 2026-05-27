@@ -5,13 +5,16 @@ metadata:
   labels:
     app: nginx
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: nginx
   ports:
     - name: http
       port: 80
       targetPort: http
+      nodePort: 30080
+
     - name: https
       port: 443
       targetPort: https
+      nodePort: 30443

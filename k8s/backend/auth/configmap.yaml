@@ -6,4 +6,4 @@ data:
   VAULT_APP: backend
   VAULT_MOUNT: jenkins
   ENV: dev
-  VAULT_URI: http://172.31.250.60:8200
+  VAULT_URI: https://172.31.250.60:8200
